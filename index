@@ -283,8 +283,8 @@
 
     <script>
         // Configuration
-        const SUPABASE_URL = 'https://cxlsqygbrkjqkqkgbvam.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4bHNxeWdicmtqcWtxa2didmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTg3MzksImV4cCI6MjA4OTk5NDczOX0.m9xJSkH6ppv5sPEzgWybzPpBavbLYlbqf3O7abtJLqg';
+        const SUPABASE_URL = 'https://irpwagsruxyqzpistugs.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlycHdhZ3NydXh5cXpwaXN0dWdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDMyNjAsImV4cCI6MjA5NjY3OTI2MH0.dXVzzoPlP9c57LZhifG9PIdvl3wQLhrnlGR5C1t5WGo';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentView = 'home';
