@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahithyolsav - Nilambur Division</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-orange: #f97316;
+            --brand-dark: #111827;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        @font-face {
+            font-family: 'CooperBlack';
+            src: local('Cooper Black'), local('CooperBlack');
+            font-weight: bold;
+        }
+
+        .font-ssf { font-family: 'CooperBlack', serif; font-weight: 900; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Animations */
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 25s linear infinite;
+        }
+        .ticker-container:hover .ticker-text {
+            animation-play-state: paused;
+        }
+
+        /* Scratch Card Effect */
+        .scratch-container {
+            position: relative;
+            width: 90px;
+            height: 50px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--brand-orange);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .scratch-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 800;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+        .scratch-container:hover .scratch-overlay {
+            background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+        }
+        .scratched .scratch-overlay { 
+            opacity: 0; 
+            pointer-events: none; 
+            transform: scale(1.5) rotate(15deg);
+        }
+        .scratched {
+            border-color: var(--brand-orange);
+            background: #fff7ed;
+            box-shadow: inset 0 2px 4px rgba(249, 115, 22, 0.1);
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border-top-color: var(--brand-orange);
+            animation: spinner 0.8s linear infinite;
+        }
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Poster Overlay Styles */
+        .poster-preview {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 4/5;
+            position: relative;
+            background-color: white;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .poster-text-layer {
+            position: absolute;
+            top: 25%;
+            left: 8%;
+            width: 80%;
+            pointer-events: none;
+        }
+
+        /* Mobile Admin Sidebar Toggle */
+        #admin-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-[60] border-b border-slate-100">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Branding restored to left -->
+            <div class="flex items-center gap-4 group cursor-pointer" onclick="navigate('home')">
+                <div class="p-2 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors">
+                    <img src="Sahithyolsav (en)_1.png" alt="Logo" class="h-10 md:h-12" onerror="this.src='https://placehold.co/100x40?text=SSF'">
+                </div>
+                <div>
+                    <h1 class="font-ssf text-2xl md:text-3xl text-orange-600 leading-none">SSF</h1>
+                    <p class="text-[10px] md:text-xs font-extrabold tracking-[0.2em] text-slate-500 uppercase">Nilambur Division</p>
+                </div>
+            </div>
+            
+            <!-- Navigation restored to right -->
+            <nav class="hidden lg:flex items-center gap-8 font-semibold text-sm text-slate-600">
+                <button onclick="navigate('home')" class="hover:text-orange-600 transition-colors">Home</button>
+                <button onclick="navigate('about')" class="hover:text-orange-600 transition-colors">About</button>
+                <button onclick="navigate('gallery')" class="hover:text-orange-600 transition-colors">Gallery</button>
+                <button onclick="navigate('videos')" class="hover:text-orange-600 transition-colors">Videos</button>
+                <button onclick="navigate('results')" class="hover:text-orange-600 transition-colors">Results</button>
+                <button onclick="openLoginModal()" class="bg-slate-900 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-all shadow-md active:scale-95">Portal Login</button>
+            </nav>
+            
+            <button class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+        
+        <!-- News Ticker -->
+        <div class="bg-orange-600 text-white py-1.5 ticker-container overflow-hidden text-xs font-bold uppercase tracking-wider relative">
+            <div class="absolute left-0 top-0 h-full bg-orange-700 px-3 z-10 flex items-center shadow-lg">LATEST</div>
+            <div class="ticker-text pl-20" id="news-ticker">
+                Welcome to Sahithyolsav 2025 Nilambur Division! Stay tuned for live updates and results.
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Menu -->
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-white z-[70] p-6 flex flex-col gap-6 animate-in slide-in-from-right duration-300">
+        <div class="flex justify-between items-center mb-8">
+            <span class="font-ssf text-2xl text-orange-600">MENU</span>
+            <button onclick="toggleMobileMenu()" class="p-2 text-slate-400">&times; Close</button>
+        </div>
+        <button onclick="navigate('home'); toggleMobileMenu()" class="text-xl font-bold border-b pb-4 text-left">Home</button>
+        <button onclick="navigate('about'); toggleMobileMenu()" class="text-xl font-bold border-b pb-4 text-left">About Sahithyolsav</button>
+        <button onclick="navigate('gallery'); toggleMobileMenu()" class="text-xl font-bold border-b pb-4 text-left">Gallery</button>
+        <button onclick="navigate('videos'); toggleMobileMenu()" class="text-xl font-bold border-b pb-4 text-left">Videos</button>
+        <button onclick="navigate('results'); toggleMobileMenu()" class="text-xl font-bold border-b pb-4 text-left">Results</button>
+        <button onclick="openLoginModal(); toggleMobileMenu()" class="mt-auto bg-orange-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl">Portal Login</button>
+    </div>
+
+    <main id="app-view" class="min-h-[80vh]">
+        <!-- Views injected here -->
+    </main>
+
+    <footer class="bg-slate-950 text-white pt-20 pb-10 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-2">
+                    <h2 class="font-ssf text-3xl text-orange-500 mb-6">SSF Nilambur</h2>
+                    <p class="text-slate-400 max-w-md leading-relaxed mb-8">
+                        The Sunni Students’ Federation is a premier student organization in India, dedicated to nurturing moral excellence and intellectual growth among the youth.
+                    </p>
+                    <div class="flex gap-4">
+                        <!-- Updated Social Icons with provided PNGs and Links (YT removed) -->
+                        <a href="https://www.facebook.com/share/1FNVLLXMmw/" target="_blank" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors p-2">
+                            <img src="fb.png" alt="Facebook" class="w-full h-full object-contain" onerror="this.style.display='none'; this.parentElement.innerText='FB'">
+                        </a>
+                        <a href="https://www.instagram.com/ssfnilamburdvn?igsh=YmpyNHo3d3Y5dmRi" target="_blank" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors p-2">
+                            <img src="insta.png" alt="Instagram" class="w-full h-full object-contain" onerror="this.style.display='none'; this.parentElement.innerText='IG'">
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-6">Explore</h3>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li><button onclick="navigate('results')" class="hover:text-white transition-colors">Live Results</button></li>
+                        <li><button onclick="navigate('about')" class="hover:text-white transition-colors">About Us</button></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Event Calendar</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Brochure Download</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-6">Contact</h3>
+                    <ul class="space-y-4 text-slate-400 text-sm">
+                        <li>Nilambur, Malappuram</li>
+                        <li>Kerala, India</li>
+                        <li>info@ssfnilambur.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 uppercase tracking-widest font-bold">
+                <p>&copy; 2025 SSF Nilambur Division. All Rights Reserved.</p>
+            
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Modals -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 text-slate-300 hover:text-slate-600">&times;</button>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold">Manager Portal</h2>
+                <p class="text-slate-500 text-sm">Enter your credentials to manage stage events</p>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Login ID</label>
+                    <input type="text" id="login-id" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Password</label>
+                    <input type="password" id="login-pwd" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-200 hover:bg-orange-700 active:scale-95 transition-all mt-4">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Sub-Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative overflow-y-auto max-h-[90vh]">
+            <button onclick="closeAdminModal()" class="absolute top-6 right-6 text-slate-300 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            <div id="admin-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Feedback Toasts -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[300] hidden flex flex-col items-center justify-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-16 w-16"></div>
+        <p class="mt-6 font-bold text-slate-600 animate-pulse uppercase tracking-[0.2em] text-xs">Synchronizing with cloud...</p>
+    </div>
+
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://cxlsqygbrkjqkqkgbvam.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4bHNxeWdicmtqcWtxa2didmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTg3MzksImV4cCI6MjA4OTk5NDczOX0.m9xJSkH6ppv5sPEzgWybzPpBavbLYlbqf3O7abtJLqg';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentView = 'home';
+        let currentUser = null;
+        let evaluationMode = false;
+        let adminParticipantsData = []; // Cache for searching
+        let currentPosterResult = null; // Stores results for poster display
+
+        // Navigation Engine
+        function navigate(view) {
+            currentView = view;
+            const app = document.getElementById('app-view');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            switch(view) {
+                case 'home': 
+                    app.innerHTML = renderHome(); 
+                    startCarousel(); 
+                    updateTicker(); 
+                    break;
+                case 'about': app.innerHTML = renderAbout(); break;
+                case 'gallery': app.innerHTML = renderGallery(); loadMedia('image'); break;
+                case 'videos': app.innerHTML = renderVideos(); loadMedia('video'); break;
+                case 'results': app.innerHTML = renderResults(); toggleResultSub('results'); break;
+                case 'admin': app.innerHTML = renderAdmin(); adminSub('programs'); break;
+                case 'stage': app.innerHTML = renderStage(); fetchStagePrograms(); break;
+            }
+        }
+
+        // Ticker Logic
+        async function updateTicker() {
+            const { data } = await supabaseClient.from('news').select('*').order('created_at', { ascending: false });
+            const ticker = document.getElementById('news-ticker');
+            if (data && data.length > 0) {
+                ticker.innerText = data.map(n => n.content).join('    •   ');
+            } else {
+                ticker.innerText = "Welcome to Sahithyolsav 2026 Nilambur Division! Stay tuned for live updates and results.";
+            }
+        }
+
+        // UI Handlers
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+        function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); }
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function showLoading(s) { document.getElementById('loading').classList.toggle('hidden', !s); }
+
+        function toggleAdminSidebar() {
+            document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-slate-900 border-l-4 border-emerald-500' : 'bg-red-900 border-l-4 border-red-500';
+            toast.className = `${bg} text-white px-6 py-4 rounded-xl shadow-2xl min-w-[300px] flex justify-between items-center animate-in slide-in-from-right`;
+            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-4 opacity-50 hover:opacity-100">&times;</button>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right');
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, 4000);
+        }
+
+        // --- VIEW RENDERERS ---
+
+        function renderHome() {
+            return `
+                <section class="relative h-[600px] overflow-hidden bg-slate-950">
+                    <div id="carousel-track" class="flex h-full transition-transform duration-1000 ease-in-out">
+                        <div class="min-w-full h-full relative">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920" class="absolute inset-0 w-full h-full object-cover opacity-50">
+                            <div class="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
+                                <span class="bg-orange-600 px-4 py-1 rounded-full text-xs font-bold mb-6 tracking-[0.3em]">CULTURAL EXTRAVAGANZA</span>
+                                <h2 class="text-5xl md:text-8xl font-ssf mb-6 drop-shadow-2xl">Sahithyolsav 2025</h2>
+                                <p class="text-lg md:text-2xl text-slate-300 max-w-2xl font-medium">Where words find rhythm and talents find a stage. Nilambur Division proudly presents the ultimate literary festival.</p>
+                                <div class="mt-12 flex flex-wrap gap-4 justify-center">
+                                    <button onclick="navigate('results')" class="bg-white text-slate-950 px-8 py-4 rounded-full font-bold shadow-xl hover:bg-orange-500 hover:text-white transition-all active:scale-95">View Live Results</button>
+                                    <button class="bg-white/10 backdrop-blur-md border border-white/20 px-8 py-4 rounded-full font-bold hover:bg-white/20 transition-all">Download Brochure</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="min-w-full h-full relative">
+                            <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1920" class="absolute inset-0 w-full h-full object-cover opacity-40">
+                            <div class="relative h-full container mx-auto px-4 flex flex-col justify-center items-center text-center text-white">
+                                <span class="bg-blue-600 px-4 py-1 rounded-full text-xs font-bold mb-6 tracking-[0.3em]">UNLEASH CREATIVITY</span>
+                                <h2 class="text-5xl md:text-8xl font-ssf mb-6 drop-shadow-2xl">Celebrate Talent</h2>
+                                <p class="text-lg md:text-2xl text-slate-300 max-w-2xl font-medium">Join thousands of students across 50+ literary and artistic categories.</p>
+                                <div class="mt-12 flex flex-wrap gap-4 justify-center">
+                                    <button class="bg-orange-600 text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-orange-700 transition-all active:scale-95">Event Schedule</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="py-24 bg-white">
+                    <div class="container mx-auto px-4">
+                        <div class="max-w-4xl mx-auto text-center">
+                            <h3 class="text-orange-600 font-bold tracking-widest text-sm uppercase mb-4">The Pride of Nilambur</h3>
+                            <h2 class="text-4xl md:text-5xl font-extrabold mb-8 text-slate-900 leading-tight">Welcome to the biggest cultural festival of the division</h2>
+                            <p class="text-slate-500 text-lg leading-relaxed mb-12">Sahithyolsav is not just a competition; it is a movement that has been shaping the cultural fabric of Nilambur for decades.</p>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderAbout() {
+            return `<section class="py-24 bg-slate-50 min-h-screen">
+                <div class="container mx-auto px-4 max-w-5xl">
+                    <div class="bg-white p-12 md:p-20 rounded-[3rem] shadow-xl relative overflow-hidden">
+                        <h1 class="text-5xl font-ssf text-orange-600 mb-10">About Sahithyolsav</h1>
+                        <p class="text-slate-600 leading-relaxed mb-6">Sunni Students’ Federation (SSF) conducts Sahithyolsav as a platform for students to explore literary and artistic talents.</p>
+                    </div>
+                </div>
+            </section>`;
+        }
+
+        function renderResults() {
+            return `<section class="py-20 bg-slate-100 min-h-screen">
+                <div class="container mx-auto px-4 max-w-6xl">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-8">
+                        <h2 class="text-4xl font-ssf text-slate-900">Live Standings</h2>
+                        <div class="bg-white p-1.5 rounded-2xl shadow-lg inline-flex">
+                            <button onclick="toggleResultSub('results')" id="btn-res-list" class="px-8 py-3 rounded-xl font-bold transition-all">Winners</button>
+                            <button onclick="toggleResultSub('status')" id="btn-res-status" class="px-8 py-3 rounded-xl font-bold transition-all">Points</button>
+                        </div>
+                    </div>
+                    <div id="result-content" class="animate-in fade-in duration-500"></div>
+                </div>
+            </section>`;
+        }
+
+        function renderGallery() {
+            return `<section class="py-24">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-5xl font-ssf text-center text-orange-600 mb-16">Photo Gallery</h2>
+                    <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                </div>
+            </section>`;
+        }
+
+        function renderVideos() {
+            return `<section class="py-24">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-5xl font-ssf text-center text-orange-600 mb-16">Video Highlights</h2>
+                    <div id="video-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                </div>
+            </section>`;
+        }
+
+        // --- DATA OPERATIONS ---
+
+        async function loadMedia(type) {
+            const { data } = await supabaseClient.from('media').select('*').eq('type', type).order('created_at', { ascending: false });
+            const gridId = type === 'image' ? 'gallery-grid' : 'video-grid';
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+
+            if (data && data.length > 0) {
+                if (type === 'image') {
+                    grid.innerHTML = data.map(m => `
+                        <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
+                            <img src="${m.url}" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="${m.title}">
+                            <div class="p-4 text-center font-bold text-slate-800">${m.title || ''}</div>
+                        </div>`).join('');
+                } else {
+                    grid.innerHTML = data.map(m => `
+                        <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100">
+                            <div class="relative pt-[56.25%]">
+                                <iframe class="absolute inset-0 w-full h-full" src="${m.url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <div class="p-5 text-center font-bold text-slate-900">${m.title || ''}</div>
+                        </div>`).join('');
+                }
+            } else {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-bold uppercase tracking-widest">No ${type}s found</div>`;
+            }
+        }
+
+        async function toggleResultSub(sub) {
+            const content = document.getElementById('result-content');
+            if (!content) return;
+            const listBtn = document.getElementById('btn-res-list');
+            const statusBtn = document.getElementById('btn-res-status');
+            
+            listBtn.className = sub === 'results' ? 'px-8 py-3 rounded-xl font-bold bg-orange-600 text-white shadow-lg' : 'px-8 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50';
+            statusBtn.className = sub === 'status' ? 'px-8 py-3 rounded-xl font-bold bg-orange-600 text-white shadow-lg' : 'px-8 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-50';
+
+            if (sub === 'results') {
+                content.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="results-grid"></div>`;
+                loadPublicResults();
+            } else {
+                content.innerHTML = `<div class="bg-white rounded-[2rem] shadow-xl overflow-hidden"><table class="w-full text-left"><thead class="bg-slate-950 text-white text-xs uppercase tracking-[0.2em]"><tr><th class="px-8 py-5">Rank</th><th class="px-8 py-5">Sector</th><th class="px-8 py-5 text-right">Points</th></tr></thead><tbody id="points-body"></tbody></table></div>`;
+                loadTeamStatus();
+            }
+        }
+
+        async function loadPublicResults() {
+            const { data } = await supabaseClient.from('programs').select('*').eq('results_published', true).order('name');
+            const grid = document.getElementById('results-grid');
+            if (data && grid) {
+                grid.innerHTML = data.map(p => `<div onclick="showDetailedResult('${p.id}')" class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl cursor-pointer group transition-all">
+                    <h3 class="text-xl font-bold text-slate-900 group-hover:text-orange-600">${p.name}</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase mt-2">${p.category}</p>
+                </div>`).join('');
+            }
+        }
+
+        async function loadTeamStatus() {
+            const { data } = await supabaseClient.from('team_points').select('*').order('points', { ascending: false });
+            const body = document.getElementById('points-body');
+            if (data && body) {
+                body.innerHTML = data.map((d, i) => `<tr class="border-b border-slate-50">
+                    <td class="px-8 py-6"><span class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-slate-100">${i + 1}</span></td>
+                    <td class="px-8 py-6 font-bold">${d.sector}</td>
+                    <td class="px-8 py-6 text-right font-black text-xl text-orange-600">${d.points}</td>
+                </tr>`).join('');
+            }
+        }
+
+        async function showDetailedResult(id) {
+            showLoading(true);
+            const { data: prog } = await supabaseClient.from('programs').select('*').eq('id', id).single();
+            const { data: parts } = await supabaseClient.from('participants').select('*').eq('program_id', id).order('score', { ascending: false });
+            showLoading(false);
+            if (!prog) return;
+
+            currentPosterResult = { prog, parts: parts.slice(0, 3) }; 
+            
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-ssf text-orange-600 mb-2">${prog.name}</h2>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">${prog.category} Winners</p>
+                </div>
+
+                <div class="flex flex-col items-center gap-8">
+                    <div id="poster-container" class="poster-preview">
+                        <img id="poster-bg" src="poster.jpeg" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="poster-text-layer">
+                            <h3 class="font-ssf text-orange-700 text-xl md:text-2xl leading-none mb-1 uppercase" id="poster-prog-name">${prog.name}</h3>
+                            <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-6" id="poster-prog-cat">${prog.category}</p>
+                            <div class="space-y-4" id="poster-winners-list">
+                                ${currentPosterResult.parts.map((p, i) => `
+                                    <div class="flex items-start gap-3">
+                                        <span class="font-ssf text-orange-600 text-3xl leading-none">${i + 1}</span>
+                                        <div>
+                                            <div class="font-black text-slate-900 text-lg leading-tight uppercase">${p.name}</div>
+                                            <div class="text-[9px] font-bold text-orange-500 uppercase tracking-widest">${p.sector} SECTOR</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button onclick="switchPoster('poster.jpeg')" class="px-4 py-2 bg-slate-100 rounded-xl font-bold text-xs hover:bg-slate-200">Template 1</button>
+                        <button onclick="switchPoster('poster1.jpeg')" class="px-4 py-2 bg-slate-100 rounded-xl font-bold text-xs hover:bg-slate-200">Template 2</button>
+                        <button onclick="switchPoster('poster2.jpeg')" class="px-4 py-2 bg-slate-100 rounded-xl font-bold text-xs hover:bg-slate-200">Template 3</button>
+                    </div>
+
+                    <button onclick="downloadResultPoster('${prog.name}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Result Poster (JPEG)
+                    </button>
+                </div>
+            `;
+            openAdminModal();
+        }
+
+        function switchPoster(src) {
+            document.getElementById('poster-bg').src = src;
+        }
+
+        async function downloadResultPoster(progName) {
+            const element = document.getElementById('poster-container');
+            showLoading(true);
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null
+                });
+                const link = document.createElement('a');
+                link.download = `${progName.replace(/\s+/g, '_')}_Result.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                showToast("Poster downloaded successfully!");
+            } catch (err) {
+                console.error(err);
+                showToast("Failed to generate poster", "error");
+            }
+            showLoading(false);
+        }
+
+        // --- ADMIN LOGIN & DASHBOARD ---
+
+        async function handleLogin() {
+            const id = document.getElementById('login-id').value;
+            const pwd = document.getElementById('login-pwd').value;
+            showLoading(true);
+            // Master Admins
+            if (
+                (id === 'admin' && pwd === 'nilambur123') || 
+                (id === 'sharafunbr@gmail.com' && pwd === '123456') ||
+                (id === 'muhammedsharafudheen82@gmail.com' && pwd === '123456')
+            ) {
+                currentUser = { role: 'admin', login_id: id };
+                closeLoginModal(); navigate('admin'); showLoading(false); return;
+            }
+            // Stage Managers
+            const { data } = await supabaseClient.from('users_auth').select('*').eq('login_id', id).eq('password', pwd).single();
+            showLoading(false);
+            if (data) { 
+                currentUser = data; 
+                closeLoginModal(); 
+                navigate('stage'); 
+                showToast(`Welcome, Manager of ${data.stage_assigned}`); 
+            }
+            else { showToast("Invalid Credentials", "error"); }
+        }
+
+        function renderAdmin() {
+            return `
+            <div class="flex flex-col lg:flex-row min-h-screen bg-slate-50">
+                <!-- Mobile Admin Header -->
+                <div class="lg:hidden bg-slate-950 text-white p-4 flex justify-between items-center sticky top-0 z-[80]">
+                    <h2 class="font-ssf text-xl text-orange-500">Admin Panel</h2>
+                    <button onclick="toggleAdminSidebar()" class="p-2 bg-slate-800 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Admin Sidebar with mobile toggle restored -->
+                <aside id="admin-sidebar" class="fixed inset-y-0 left-0 w-72 bg-slate-950 text-white p-8 flex flex-col z-[90] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen transition-transform duration-300 ease-in-out">
+                    <div class="flex justify-between items-center lg:block mb-12">
+                        <h2 class="font-ssf text-3xl text-orange-500">Control</h2>
+                        <button onclick="toggleAdminSidebar()" class="lg:hidden p-2 text-slate-400">Close &times;</button>
+                    </div>
+                    <nav class="flex flex-col gap-2 overflow-y-auto">
+                        <button onclick="adminSub('programs'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Programs</button>
+                        <button onclick="adminSub('participants'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Participants</button>
+                        <button onclick="adminSub('points'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Leaderboard</button>
+                        <button onclick="adminSub('news'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">News Ticker</button>
+                        <button onclick="adminSub('gallery'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Gallery</button>
+                        <button onclick="adminSub('videos'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Videos</button>
+                        <button onclick="adminSub('results'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Approvals</button>
+                        <button onclick="adminSub('users'); toggleAdminSidebar()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/5 font-bold transition-all text-sm group text-left">Managers</button>
+                    </nav>
+                    <button onclick="navigate('home')" class="mt-auto bg-white/5 p-4 rounded-2xl font-bold text-xs text-slate-400 hover:text-white">Sign Out</button>
+                </aside>
+
+                <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="hidden fixed inset-0 bg-black/50 z-[85] lg:hidden"></div>
+                <main class="flex-1 p-6 lg:p-12" id="admin-content"></main>
+            </div>`;
+        }
+
+        async function adminSub(view) {
+            const main = document.getElementById('admin-content');
+            if (!main) return;
+            
+            if (view === 'programs') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">Events</h2><button onclick="showAddProgramModal()" class="w-full md:w-auto bg-orange-600 text-white px-8 py-3 rounded-full font-bold">Add Event</button></div><div id="admin-programs-list" class="grid gap-3"></div>`;
+                fetchAdminPrograms();
+            } else if (view === 'participants') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">Database</h2><div class="flex flex-wrap gap-4 w-full md:w-auto"><input type="file" id="excel-file" class="hidden" onchange="processExcel(this)"><label for="excel-file" class="flex-1 text-center bg-slate-900 text-white px-6 py-3 rounded-full cursor-pointer font-bold text-sm">Import Excel</label><button onclick="showAddParticipantModal()" class="flex-1 bg-orange-600 text-white px-8 py-3 rounded-full font-bold text-sm">Add Manual</button></div></div>
+                    <div class="bg-white p-6 lg:p-8 rounded-[2rem] shadow-sm border border-slate-100"><input type="text" id="p-search" placeholder="Search..." class="w-full bg-slate-50 border-0 p-4 rounded-2xl outline-none mb-8" oninput="filterParticipants(this.value)"><div id="admin-participants-list" class="space-y-1"></div></div>`;
+                fetchAdminParticipants();
+            } else if (view === 'points') {
+                main.innerHTML = `<div class="flex justify-between items-center mb-10"><h2 class="text-3xl lg:text-4xl font-black">Leaderboard</h2></div><div class="bg-white p-6 lg:p-8 rounded-[2rem] shadow-sm border border-slate-100" id="admin-points-list"></div>`;
+                fetchAdminPoints();
+            } else if (view === 'news') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">News</h2><button onclick="showAddNewsModal()" class="w-full md:w-auto bg-orange-600 text-white px-8 py-3 rounded-full font-bold">New Post</button></div><div id="admin-news-list" class="grid gap-3"></div>`;
+                fetchAdminNews();
+            } else if (view === 'gallery') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">Gallery</h2><button onclick="showAddMediaModal('image')" class="w-full md:w-auto bg-orange-600 text-white px-8 py-3 rounded-full font-bold">Add Photo</button></div><div id="admin-gallery-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>`;
+                fetchAdminMedia('image');
+            } else if (view === 'videos') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">Videos</h2><button onclick="showAddMediaModal('video')" class="w-full md:w-auto bg-orange-600 text-white px-8 py-3 rounded-full font-bold">Add Video</button></div><div id="admin-video-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>`;
+                fetchAdminMedia('video');
+            } else if (view === 'results') {
+                main.innerHTML = `<h2 class="text-3xl lg:text-4xl font-black mb-10">Approval Queue</h2><div id="admin-results-approval" class="space-y-4"></div>`;
+                fetchAdminResultsApproval();
+            } else if (view === 'users') {
+                main.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4"><h2 class="text-3xl lg:text-4xl font-black">Managers</h2><button onclick="showAddUserModal()" class="w-full md:w-auto bg-orange-600 text-white px-8 py-3 rounded-full font-bold">Create User</button></div><div id="admin-users-list" class="space-y-2"></div>`;
+                loadAdminUsers();
+            }
+        }
+
+        // --- ADMIN HELPER FUNCTIONS ---
+
+        async function fetchAdminPrograms() {
+            const { data } = await supabaseClient.from('programs').select('*').order('name');
+            const list = document.getElementById('admin-programs-list');
+            if (data && list) list.innerHTML = data.map(p => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center"><div><div class="font-black text-lg">${p.name}</div><div class="text-[10px] font-black uppercase text-slate-400">${p.category} | ${p.stage_id}</div></div><button onclick="deleteProgram('${p.id}')" class="text-red-500 font-bold">Delete</button></div>`).join('');
+        }
+
+        function showAddProgramModal() {
+            const cats = ['Lower Primary', 'Upper Primary', 'High School', 'Higher Secondary', 'Junior', 'Senior', 'General', 'Campus', 'Campus Girls Parallel'];
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `<h3 class="text-2xl font-black mb-6">New Event</h3>
+                <input type="text" id="prog-name" placeholder="Program Name" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <select id="prog-cat" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">${cats.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                <select id="prog-stage" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-8">${Array.from({length: 13}, (_, i) => `<option value="Stage ${i+1}">Stage ${i+1}</option>`).join('')}</select>
+                <button onclick="saveProgram()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-lg">Create Program</button>`;
+            openAdminModal();
+        }
+
+        async function saveProgram() {
+            const name = document.getElementById('prog-name').value;
+            const category = document.getElementById('prog-cat').value;
+            const stage_id = document.getElementById('prog-stage').value;
+            if (!name) return;
+            showLoading(true);
+            await supabaseClient.from('programs').insert({ name, category, stage_id, status: 'pending' });
+            showLoading(false); closeAdminModal(); adminSub('programs');
+        }
+
+        async function deleteProgram(id) {
+            if(!confirm("Delete this program?")) return;
+            await supabaseClient.from('programs').delete().eq('id', id);
+            adminSub('programs');
+        }
+
+        async function fetchAdminParticipants() {
+            const { data } = await supabaseClient.from('participants').select('*, programs(name)').order('name');
+            adminParticipantsData = data || [];
+            renderParticipantList(adminParticipantsData);
+        }
+
+        function filterParticipants(val) {
+            const filtered = adminParticipantsData.filter(p => 
+                p.name.toLowerCase().includes(val.toLowerCase()) || 
+                (p.participation_number && p.participation_number.includes(val)) || 
+                (p.sector && p.sector.toLowerCase().includes(val.toLowerCase()))
+            );
+            renderParticipantList(filtered);
+        }
+
+        function renderParticipantList(arr) {
+            const list = document.getElementById('admin-participants-list');
+            if (list) list.innerHTML = arr.map(p => `<div class="flex justify-between items-center p-4 border-b"><div><div class="font-bold">${p.name} (#${p.participation_number})</div><div class="text-xs text-slate-400 uppercase font-bold">${p.programs?.name || 'No Program'} | ${p.sector} Sector</div></div><button onclick="deleteParticipant('${p.id}')" class="text-red-500 font-bold text-xs">Delete</button></div>`).join('');
+        }
+
+        async function fetchAdminPoints() {
+            const { data } = await supabaseClient.from('team_points').select('*').order('points', { ascending: false });
+            const list = document.getElementById('admin-points-list');
+            if (data && list) {
+                list.innerHTML = data.map(d => `<div class="flex justify-between items-center p-4 border-b">
+                    <span class="font-bold text-lg">${d.sector}</span>
+                    <div class="flex items-center gap-4">
+                        <input type="number" id="pts-${d.id}" value="${d.points}" class="w-24 p-2 bg-slate-50 border rounded-lg font-bold text-center">
+                        <button onclick="updatePoints('${d.id}')" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold">Update</button>
+                    </div>
+                </div>`).join('');
+            }
+        }
+
+        async function updatePoints(id) {
+            const val = document.getElementById(`pts-${id}`).value;
+            showLoading(true);
+            await supabaseClient.from('team_points').update({ points: val }).eq('id', id);
+            showLoading(false);
+            showToast("Points updated");
+            fetchAdminPoints();
+        }
+
+        async function showAddParticipantModal() {
+            showLoading(true);
+            const { data: progs } = await supabaseClient.from('programs').select('id, name, category').order('name');
+            showLoading(false);
+
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `<h3 class="text-2xl font-black mb-6">Manual Participant Entry</h3>
+                <input type="text" id="p-name" placeholder="Full Name" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <input type="text" id="p-no" placeholder="Registration Number" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <input type="text" id="p-sector" placeholder="Sector" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2 block mb-2">Select Program</label>
+                <select id="p-prog-id" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-8">
+                    ${(progs || []).map(p => `<option value="${p.id}">${p.name} (${p.category})</option>`).join('')}
+                </select>
+                <button onclick="addParticipantManual()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold">Save Data</button>`;
+            openAdminModal();
+        }
+
+        async function addParticipantManual() {
+            const name = document.getElementById('p-name').value;
+            const participation_number = document.getElementById('p-no').value;
+            const sector = document.getElementById('p-sector').value;
+            const program_id = document.getElementById('p-prog-id').value;
+            if(!name || !participation_number || !program_id) return;
+            showLoading(true);
+            await supabaseClient.from('participants').insert({ name, participation_number, sector, program_id });
+            showLoading(false); closeAdminModal(); adminSub('participants');
+        }
+
+        async function deleteParticipant(id) {
+            if(!confirm("Delete this participant?")) return;
+            await supabaseClient.from('participants').delete().eq('id', id);
+            adminSub('participants');
+        }
+
+        async function fetchAdminNews() {
+            const { data } = await supabaseClient.from('news').select('*').order('created_at', { ascending: false });
+            const list = document.getElementById('admin-news-list');
+            if (data && list) list.innerHTML = data.map(n => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center"><span class="font-bold">${n.content}</span><button onclick="deleteNews('${n.id}')" class="text-red-500">Delete</button></div>`).join('');
+        }
+
+        function showAddNewsModal() {
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `<h3 class="text-2xl font-black mb-6">Post Announcement</h3>
+                <textarea id="news-content" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-8 h-32" placeholder="Ticker message..."></textarea>
+                <button onclick="saveNews()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold">Publish Live</button>`;
+            openAdminModal();
+        }
+
+        async function saveNews() {
+            const content = document.getElementById('news-content').value;
+            if(!content) return;
+            await supabaseClient.from('news').insert({ content });
+            closeAdminModal(); adminSub('news'); updateTicker();
+        }
+
+        async function deleteNews(id) {
+            await supabaseClient.from('news').delete().eq('id', id);
+            adminSub('news'); updateTicker();
+        }
+
+        async function fetchAdminMedia(type) {
+            const { data } = await supabaseClient.from('media').select('*').eq('type', type).order('created_at', { ascending: false });
+            const listId = type === 'image' ? 'admin-gallery-list' : 'admin-video-list';
+            const list = document.getElementById(listId);
+            if (data && list) {
+                list.innerHTML = data.map(m => `<div class="bg-white p-2 rounded-2xl border text-center">
+                    ${type === 'image' ? `<img src="${m.url}" class="w-full h-24 object-cover mb-2">` : `<div class="h-24 bg-slate-100 flex items-center justify-center text-xs">Video</div>`}
+                    <div class="text-[10px] font-bold truncate">${m.title}</div>
+                    <button onclick="deleteMedia('${m.id}', '${type}')" class="text-red-500 text-xs mt-1">Delete</button>
+                </div>`).join('');
+            }
+        }
+
+        function showAddMediaModal(type) {
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `<h3 class="text-2xl font-black mb-6">Add ${type === 'image' ? 'Photo' : 'Video Link'}</h3>
+                <input type="text" id="media-title" placeholder="Title" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <input type="text" id="media-url" placeholder="URL" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-8">
+                <button onclick="saveMedia('${type}')" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold">Add to Portal</button>`;
+            openAdminModal();
+        }
+
+        async function saveMedia(type) {
+            const title = document.getElementById('media-title').value;
+            const url = document.getElementById('media-url').value;
+            if(!url) return;
+            await supabaseClient.from('media').insert({ title, url, type });
+            closeAdminModal(); adminSub(type === 'image' ? 'gallery' : 'videos');
+        }
+
+        async function deleteMedia(id, type) {
+            await supabaseClient.from('media').delete().eq('id', id);
+            adminSub(type === 'image' ? 'gallery' : 'videos');
+        }
+
+        async function loadAdminUsers() {
+            const { data } = await supabaseClient.from('users_auth').select('*');
+            const list = document.getElementById('admin-users-list');
+            if (data && list) list.innerHTML = data.map(u => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center"><div><span class="font-black">${u.login_id}</span> <span class="text-xs text-slate-400">(${u.stage_assigned})</span></div><button onclick="deleteUser('${u.id}')" class="text-red-500 font-bold">Revoke</button></div>`).join('');
+        }
+
+        function showAddUserModal() {
+            const content = document.getElementById('admin-modal-content');
+            content.innerHTML = `<h3 class="text-2xl font-black mb-6">Stage Manager Account</h3>
+                <input type="text" id="nu-id" placeholder="Login ID" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <input type="password" id="nu-pwd" placeholder="Password" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-4">
+                <select id="nu-stage" class="w-full bg-slate-50 border-0 p-4 rounded-2xl mb-8">${Array.from({length: 13}, (_, i) => `<option value="Stage ${i+1}">Stage ${i+1}</option>`).join('')}</select>
+                <button onclick="saveUser()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold">Create Access</button>`;
+            openAdminModal();
+        }
+
+        async function saveUser() {
+            const login_id = document.getElementById('nu-id').value;
+            const password = document.getElementById('nu-pwd').value;
+            const stage_assigned = document.getElementById('nu-stage').value;
+            if(!login_id || !password) return;
+            await supabaseClient.from('users_auth').insert({ login_id, password, role: 'stage', stage_assigned });
+            closeAdminModal(); adminSub('users');
+        }
+
+        async function deleteUser(id) {
+            await supabaseClient.from('users_auth').delete().eq('id', id);
+            adminSub('users');
+        }
+
+        // --- STAGE MANAGER ---
+
+        function renderStage() {
+            evaluationMode = false;
+            return `
+                <div class="bg-slate-950 text-white pt-24 pb-12">
+                    <div class="container mx-auto px-4 flex justify-between items-end">
+                        <div>
+                            <span class="text-orange-500 font-black uppercase text-xs tracking-[0.3em]">Authorized Access</span>
+                            <h2 class="text-4xl md:text-5xl font-ssf mt-2">${currentUser?.stage_assigned || 'Command Centre'}</h2>
+                        </div>
+                        <button onclick="navigate('home')" class="text-slate-400 hover:text-white font-bold text-sm pb-2 border-b-2 border-transparent hover:border-orange-600 transition-all">Sign Out</button>
+                    </div>
+                </div>
+                <div class="container mx-auto px-4 py-16 max-w-5xl">
+                    <div id="stage-programs-list" class="grid gap-4"></div>
+                </div>`;
+        }
+
+        async function fetchStagePrograms() {
+            if (!currentUser) return;
+            const { data } = await supabaseClient.from('programs').select('*').eq('stage_id', currentUser.stage_assigned).order('status', { ascending: false });
+            const list = document.getElementById('stage-programs-list');
+            if (data && list) {
+                list.innerHTML = data.map(p => `<div onclick="openStageProgram('${p.id}')" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:border-orange-500 cursor-pointer flex justify-between items-center group transition-all">
+                    <div><div class="font-bold text-xl text-slate-900">${p.name}</div><div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">${p.category}</div></div>
+                    <span class="text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full ${p.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">${p.status}</span>
+                </div>`).join('');
+            }
+        }
+
+        async function openStageProgram(id, evalMode = false) {
+            evaluationMode = evalMode;
+            showLoading(true);
+            const { data: prog } = await supabaseClient.from('programs').select('*').eq('id', id).single();
+            const { data: parts } = await supabaseClient.from('participants').select('*').eq('program_id', id).order('name', { ascending: true });
+            showLoading(false);
+            if (!prog) return;
+
+            const hasCodes = (parts || []).some(p => p.chess_number);
+            const main = document.getElementById('app-view');
+            main.innerHTML = `<div class="bg-slate-950 text-white pt-24 pb-12"><div class="container mx-auto px-4">
+                <button onclick="navigate('stage')" class="mb-4 text-orange-500 font-bold flex items-center gap-2 group">Exit</button>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div><h1 class="text-4xl font-ssf leading-tight">${prog.name}</h1><p class="text-[10px] font-black text-slate-400 tracking-[0.4em] uppercase mt-2">${prog.category}</p></div>
+                    <div class="flex flex-wrap gap-4">
+                        ${!evaluationMode ? `
+                            ${!hasCodes ? `<button onclick="startChessSelection('${prog.id}')" class="bg-orange-600 text-white px-8 py-3 rounded-full font-bold shadow-lg">Assign Codes</button>` : `<button onclick="openStageProgram('${prog.id}', true)" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg text-sm">Start Evaluation</button>`}
+                        ` : `
+                            <button onclick="finishStageProgram('${prog.id}')" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg text-sm text-center">Transfer Result</button>
+                        `}
+                    </div>
+                </div>
+            </div></div>
+            <div class="container mx-auto px-4 py-12 max-w-6xl"><div class="grid gap-6">
+                ${(parts || []).filter(p => !evaluationMode || p.attendance).map(p => `
+                    <div class="bg-white rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center gap-8 shadow-sm border border-slate-100 group">
+                        ${!evaluationMode ? `<div class="flex-1"><div>ID: ${p.participation_number}</div><div class="text-2xl font-black">${p.name}</div><div class="text-orange-600 uppercase font-bold text-xs">${p.sector}</div></div>
+                        <div class="flex flex-col items-center gap-4">
+                            <label class="flex items-center gap-3"><input type="checkbox" ${p.attendance ? 'checked' : ''} onchange="markAttendance('${p.id}', this.checked, '${prog.id}')" class="w-6 h-6 rounded accent-orange-600"> <span class="font-bold">Present</span></label>
+                            ${p.chess_number ? `<div class="scratch-container" onclick="this.classList.add('scratched')"><div class="scratch-overlay">Reveal</div><span>${p.chess_number}</span></div>` : ''}
+                        </div>` : `
+                        <div class="w-24 h-24 rounded-full bg-slate-950 text-white flex items-center justify-center font-black text-4xl shadow-xl border-4 border-orange-600">${p.chess_number}</div>
+                        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="text-[10px] font-black uppercase text-slate-400 ml-1">Score</label><input type="number" id="score-${p.id}" value="${p.score || ''}" class="w-full bg-slate-50 p-4 rounded-2xl font-black text-2xl"></div>
+                            <div><label class="text-[10px] font-black uppercase text-slate-400 ml-1">Notes</label><input type="text" id="fb-${p.id}" value="${p.feedback || ''}" class="w-full bg-slate-50 p-4 rounded-2xl"></div>
+                            <button onclick="updateEntry('${p.id}')" class="md:col-span-2 bg-slate-900 text-white py-3 rounded-2xl font-bold text-xs uppercase">Save Data</button>
+                        </div>`}
+                    </div>`).join('')}
+            </div></div>`;
+        }
+
+        async function startChessSelection(progId) {
+            showLoading(true);
+            const { data: parts } = await supabaseClient.from('participants').select('*').eq('program_id', progId).eq('attendance', true);
+            if(!parts || parts.length === 0) { showLoading(false); return showToast("No participants present", "error"); }
+            const gen = (i) => String.fromCharCode((i % 26) + 65);
+            const idx = parts.map((_, i) => i).sort(() => Math.random() - 0.5);
+            for (let i = 0; i < parts.length; i++) {
+                await supabaseClient.from('participants').update({ chess_number: gen(idx[i]) }).eq('id', parts[i].id);
+            }
+            showLoading(false); openStageProgram(progId);
+        }
+
+        async function updateEntry(partId) {
+            const score = document.getElementById(`score-${partId}`).value;
+            const feedback = document.getElementById(`fb-${partId}`).value;
+            const { error } = await supabaseClient.from('participants').update({ score: score || 0, feedback }).eq('id', partId);
+            if (!error) showToast("Synchronized");
+        }
+
+        async function markAttendance(id, present, progId) { 
+            await supabaseClient.from('participants').update({ attendance: present }).eq('id', id); 
+            openStageProgram(progId);
+        }
+
+        async function finishStageProgram(id) {
+            if(!confirm("Are you sure?")) return;
+            showLoading(true);
+            await supabaseClient.from('programs').update({ status: 'completed' }).eq('id', id);
+            showLoading(false); navigate('admin');
+        }
+
+        async function fetchAdminResultsApproval() {
+            const { data } = await supabaseClient.from('programs').select('*').eq('status', 'completed').eq('results_published', false);
+            const list = document.getElementById('admin-results-approval');
+            if (data && list) {
+                if(data.length === 0) list.innerHTML = `<div class="py-20 text-center text-slate-300 font-black uppercase tracking-widest">Empty Queue</div>`;
+                else list.innerHTML = data.map(p => `
+                    <div class="bg-white p-6 rounded-3xl border flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div><div class="font-black text-xl text-slate-900">${p.name}</div><div class="text-[10px] font-black text-orange-600 uppercase">${p.category}</div></div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                             <button onclick="viewTransferData('${p.id}')" class="flex-1 md:flex-none bg-slate-100 text-slate-900 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest">Review</button>
+                             <button onclick="publishPublicResult('${p.id}')" class="flex-1 md:flex-none bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg text-xs text-center uppercase tracking-widest">Publish</button>
+                        </div>
+                    </div>`).join('');
+            }
+        }
+
+        async function viewTransferData(progId) {
+            showLoading(true);
+            const { data: parts } = await supabaseClient.from('participants').select('*').eq('program_id', progId).order('score', { ascending: false });
+            showLoading(false);
+            const content = document.getElementById('admin-modal-content');
+            let currentRank = 1;
+            const rankedParts = (parts || []).map((p, i, arr) => {
+                if (i > 0 && p.score < arr[i-1].score) currentRank = i + 1;
+                return { ...p, position: currentRank };
+            });
+            content.innerHTML = `<h2 class="text-2xl font-black mb-6 text-center">Review Transferred Data</h2>
+                <div class="space-y-3">
+                    ${rankedParts.map(p => `<div class="p-4 lg:p-5 bg-slate-50 rounded-2xl flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full bg-slate-950 text-white flex items-center justify-center font-black text-xs">${p.position}</div>
+                            <div>
+                                <div class="font-bold text-slate-900 text-sm">${p.name}</div>
+                                <div class="text-[9px] text-slate-400 uppercase font-bold">Code: ${p.chess_number}</div>
+                                ${p.feedback ? `<div class="text-[10px] text-emerald-600 mt-1 italic font-medium">Judge Feedback: ${p.feedback}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-orange-600 font-black text-lg">${p.score}</div>
+                    </div>`).join('')}
+                </div>`;
+            openAdminModal();
+        }
+
+        async function publishPublicResult(id) {
+            showLoading(true);
+            await supabaseClient.from('programs').update({ results_published: true }).eq('id', id);
+            showLoading(false); showToast("Published"); fetchAdminResultsApproval();
+        }
+
+        function startCarousel() {
+            let i = 0;
+            const interval = setInterval(() => {
+                const track = document.getElementById('carousel-track');
+                if (!track) { clearInterval(interval); return; }
+                i = (i + 1) % 2;
+                track.style.transform = `translateX(-${i * 100}%)`;
+            }, 6000);
+        }
+
+        window.onload = () => navigate('home');
+
+    </script>
+</body>
+</html>
