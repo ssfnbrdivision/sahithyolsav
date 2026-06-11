@@ -482,21 +482,31 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
 
             if (data && data.length > 0) {
                if (type === 'image') {
-    grid.innerHTML = `
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
-            <img src="theme.jpg" class="w-full h-64 object-cover">
-            <div class="p-4 text-center font-bold">Theme Image</div>
-        </div>
+grid.innerHTML = `
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm cursor-pointer">
+    <img src="theme.jpg"
+         class="w-full h-64 object-cover"
+         onclick="openImage(0)">
+</div>
 
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
-            <img src="2.jpg" class="w-full h-64 object-cover">
-            <div class="p-4 text-center font-bold">Gallery Image 1</div>
-        </div>
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm cursor-pointer">
+    <img src="1.jpg"
+         class="w-full h-64 object-cover"
+         onclick="openImage(1)">
+</div>
 
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm">
-            <img src="1.jpg" class="w-full h-64 object-cover">
-            <div class="p-4 text-center font-bold">Gallery Image 2</div>
-        </div>
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm cursor-pointer">
+    <img src="2.jpg"
+         class="w-full h-64 object-cover"
+         onclick="openImage(2)">
+</div>
+
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm cursor-pointer">
+    <img src="3.jpg"
+         class="w-full h-64 object-cover"
+         onclick="openImage(3)">
+</div>
+`;
     ` + data.map(m => `
         <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
             <img src="${m.url}" class="w-full h-64 object-cover">
@@ -1094,9 +1104,59 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
                 track.style.transform = `translateX(-${i * 100}%)`;
             }, 6000);
         }
+const galleryImages = [
+    "theme.jpg",
+    "1.jpg",
+    "2.jpg",
+    "3.jpg"
+];
 
+let currentImage = 0;
+
+function openImage(index) {
+    currentImage = index;
+    document.getElementById("imageModal").classList.remove("hidden");
+    document.getElementById("modalImg").src = galleryImages[currentImage];
+}
+
+function nextImage() {
+    currentImage = (currentImage + 1) % galleryImages.length;
+    document.getElementById("modalImg").src = galleryImages[currentImage];
+}
+
+function prevImage() {
+    currentImage =
+        (currentImage - 1 + galleryImages.length) % galleryImages.length;
+    document.getElementById("modalImg").src = galleryImages[currentImage];
+}
+
+function closeImage() {
+    document.getElementById("imageModal").classList.add("hidden");
+}
         window.onload = () => navigate('home');
 
     </script>
+    <div id="imageModal"
+     class="hidden fixed inset-0 bg-black/90 z-[999] flex items-center justify-center">
+
+    <button onclick="prevImage()"
+            class="absolute left-5 text-white text-5xl">
+        ❮
+    </button>
+
+    <img id="modalImg"
+         class="max-w-[90%] max-h-[90%] rounded-xl">
+
+    <button onclick="nextImage()"
+            class="absolute right-5 text-white text-5xl">
+        ❯
+    </button>
+
+    <button onclick="closeImage()"
+            class="absolute top-5 right-8 text-white text-4xl">
+        ×
+    </button>
+
+</div>
 </body>
 </html>
