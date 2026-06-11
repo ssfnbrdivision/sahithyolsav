@@ -480,41 +480,47 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
             const grid = document.getElementById(gridId);
             if (!grid) return;
 
-            if (data && data.length > 0) {
-               if (type === 'image') {
+async function loadMedia(type) {
 
-    const images = [
-        "1.jpg",
-        "2.jpg",
-        "3.jpg",
-        "4.jpg",
-        "theme.jpg"
-    ];
+    const gridId = type === 'image' ? 'gallery-grid' : 'video-grid';
+    const grid = document.getElementById(gridId);
 
-    grid.innerHTML = images.map(img => `
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
-           <a href="${img}" data-lightbox="gallery">
-    <img src="${img}"
-         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500">
-</a>
-                 class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                 onclick="window.open('${img}','_blank')">
-        </div>
-    `).join('');
-}else {
-                    grid.innerHTML = data.map(m => `
-                        <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100">
-                            <div class="relative pt-[56.25%]">
-                                <iframe class="absolute inset-0 w-full h-full" src="${m.url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
-                            </div>
-                            <div class="p-5 text-center font-bold text-slate-900">${m.title || ''}</div>
-                        </div>`).join('');
-                }
-            } else {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-bold uppercase tracking-widest">No ${type}s found</div>`;
-            }
-        }
+    if (type === 'image') {
 
+        const images = [
+            "1.jpg",
+            "2.jpg",
+            "3.jpg",
+            "4.jpg",
+            "theme.jpg"
+        ];
+
+        grid.innerHTML = images.map(img => `
+            <div class="bg-white rounded-3xl overflow-hidden shadow-lg">
+                <img src="${img}"
+                     class="w-full h-64 object-cover">
+            </div>
+        `).join('');
+
+        return;
+    }
+
+    const { data } = await supabaseClient
+        .from('media')
+        .select('*')
+        .eq('type', type)
+        .order('created_at', { ascending: false });
+
+    if (data && data.length > 0) {
+        grid.innerHTML = data.map(m => `
+            <div>
+                <iframe src="${m.url.replace('watch?v=', 'embed/')}"
+                        class="w-full h-64">
+                </iframe>
+            </div>
+        `).join('');
+    }
+}
         async function toggleResultSub(sub) {
             const content = document.getElementById('result-content');
             if (!content) return;
