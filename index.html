@@ -472,6 +472,47 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
             </section>`;
         }
 
+
+        let galleryImages = [
+    "1.jpg",
+    "2.jpg",
+    "3.jpg",
+    "4.jpg",
+    "theme.jpg"
+];
+
+let currentImage = 0;
+
+function openGallery(index) {
+    currentImage = index;
+    document.getElementById("gallery-image").src =
+        galleryImages[currentImage];
+
+    document.getElementById("gallery-modal")
+        .classList.remove("hidden");
+}
+
+function closeGallery() {
+    document.getElementById("gallery-modal")
+        .classList.add("hidden");
+}
+
+function nextImage() {
+    currentImage =
+        (currentImage + 1) % galleryImages.length;
+
+    document.getElementById("gallery-image").src =
+        galleryImages[currentImage];
+}
+
+function prevImage() {
+    currentImage =
+        (currentImage - 1 + galleryImages.length)
+        % galleryImages.length;
+
+    document.getElementById("gallery-image").src =
+        galleryImages[currentImage];
+}
         // --- DATA OPERATIONS ---
 
        async function loadMedia(type) {
@@ -491,12 +532,13 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
             "theme.jpg"
         ];
 
-        grid.innerHTML = images.map(img => `
-            <div class="bg-white rounded-3xl overflow-hidden shadow-lg">
-                <img src="${img}"
-                     class="w-full h-64 object-cover">
-            </div>
-        `).join('');
+       grid.innerHTML = images.map((img,index) => `
+    <div class="bg-white rounded-3xl overflow-hidden shadow-lg">
+        <img src="${img}"
+             onclick="openGallery(${index})"
+             class="w-full h-64 object-cover cursor-pointer">
+    </div>
+`).join('');
 
         return;
     }
@@ -1104,5 +1146,28 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
 href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+    <!-- Gallery Modal -->
+<div id="gallery-modal"
+     class="hidden fixed inset-0 bg-black/90 z-[999] flex items-center justify-center">
+
+    <button onclick="prevImage()"
+            class="absolute left-4 text-white text-5xl">
+        ❮
+    </button>
+
+    <img id="gallery-image"
+         class="max-w-[90%] max-h-[90%] rounded-xl">
+
+    <button onclick="nextImage()"
+            class="absolute right-4 text-white text-5xl">
+        ❯
+    </button>
+
+    <button onclick="closeGallery()"
+            class="absolute top-5 right-8 text-white text-5xl">
+        ×
+    </button>
+
+</div>
 </body>
 </html>
