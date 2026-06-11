@@ -474,16 +474,12 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
 
         // --- DATA OPERATIONS ---
 
-        async function loadMedia(type) {
-            const { data } = await supabaseClient.from('media').select('*').eq('type', type).order('created_at', { ascending: false });
-            const gridId = type === 'image' ? 'gallery-grid' : 'video-grid';
-            const grid = document.getElementById(gridId);
-            if (!grid) return;
-
-async function loadMedia(type) {
+       async function loadMedia(type) {
 
     const gridId = type === 'image' ? 'gallery-grid' : 'video-grid';
     const grid = document.getElementById(gridId);
+
+    if (!grid) return;
 
     if (type === 'image') {
 
@@ -521,6 +517,8 @@ async function loadMedia(type) {
         `).join('');
     }
 }
+
+
         async function toggleResultSub(sub) {
             const content = document.getElementById('result-content');
             if (!content) return;
