@@ -482,12 +482,18 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
 
             if (data && data.length > 0) {
                 if (type === 'image') {
-                    grid.innerHTML = data.map(m => `
-                        <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
-                            <img src="${m.url}" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="${m.title}">
-                            <div class="p-4 text-center font-bold text-slate-800">${m.title || ''}</div>
-                        </div>`).join('');
-                } else {
+    grid.innerHTML = data.map((m, i) => `
+        <div class="bg-white rounded-3xl overflow-hidden shadow-lg cursor-pointer"
+             onclick="openImage(${i})">
+
+            <img src="${m.url}"
+                 class="w-full h-64 object-cover hover:scale-105 transition">
+
+        </div>
+    `).join('');
+
+    window.galleryImages = data;
+} else {
                     grid.innerHTML = data.map(m => `
                         <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100">
                             <div class="relative pt-[56.25%]">
@@ -1080,7 +1086,56 @@ Sahityotsav has its assets of thousands of young vibrant studentdom who have cam
         }
 
         window.onload = () => navigate('home');
+function openImage(index) {
+    const images = window.galleryImages;
 
+    document.body.insertAdjacentHTML(
+        'beforeend',
+        `
+        <div id="imageViewer"
+             class="fixed inset-0 bg-black/90 z-[999] flex items-center justify-center">
+
+            <button onclick="prevImage()"
+                    class="absolute left-5 text-white text-5xl">
+                ❮
+            </button>
+
+            <img id="viewerImg"
+                 src="${images[index].url}"
+                 class="max-w-[90%] max-h-[90%]">
+
+            <button onclick="nextImage()"
+                    class="absolute right-5 text-white text-5xl">
+                ❯
+            </button>
+
+            <button onclick="document.getElementById('imageViewer').remove()"
+                    class="absolute top-5 right-5 text-white text-4xl">
+                ×
+            </button>
+        </div>
+        `
+    );
+
+    window.currentImageIndex = index;
+}
+
+function nextImage() {
+    window.currentImageIndex =
+        (window.currentImageIndex + 1) % window.galleryImages.length;
+
+    document.getElementById("viewerImg").src =
+        window.galleryImages[window.currentImageIndex].url;
+}
+
+function prevImage() {
+    window.currentImageIndex =
+        (window.currentImageIndex - 1 + window.galleryImages.length) %
+        window.galleryImages.length;
+
+    document.getElementById("viewerImg").src =
+        window.galleryImages[window.currentImageIndex].url;
+}
     </script>
 </body>
 </html>
