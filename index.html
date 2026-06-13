@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --brand-orange: #f97316;
@@ -123,13 +123,16 @@
             overflow: hidden;
             margin: 0 auto;
         }
-        .poster-text-layer {
-            position: absolute;
-            top: 25%;
-            left: 8%;
-            width: 80%;
-            pointer-events: none;
-        }
+        .poster-text-layer{
+    position:absolute;
+    top:23%;
+    left:7%;
+    width:42%;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    pointer-events:none;
+}
 
         /* Mobile Admin Sidebar Toggle */
         #admin-sidebar.mobile-open {
@@ -610,7 +613,12 @@ function prevImage() {
             const { data: parts } = await supabaseClient.from('participants').select('*').eq('program_id', id).order('score', { ascending: false });
             showLoading(false);
             if (!prog) return;
+const { count } = await supabaseClient
+    .from('programs')
+    .select('*', { count: 'exact', head: true })
+    .eq('results_published', true);
 
+const publishOrder = count;
             currentPosterResult = { prog, parts: parts.slice(0, 3) }; 
             
             const content = document.getElementById('admin-modal-content');
@@ -625,17 +633,39 @@ function prevImage() {
                         <img id="poster-bg" src="Rslt01.png" class="absolute inset-0 w-full h-full object-cover">
                         <div class="poster-text-layer">
                             <h3 class="font-ssf text-orange-700 text-xl md:text-2xl leading-none mb-1 uppercase" id="poster-prog-name">${prog.name}</h3>
+                            <div class="mb-4">
+    <span class="bg-orange-600 text-white px-3 py-1 rounded-full
+                 text-xs font-semibold">
+        RESULT NO : ${publishOrder}
+    </span>
+</div>
                             <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-6" id="poster-prog-cat">${prog.category}</p>
                             <div class="space-y-4" id="poster-winners-list">
                                 ${currentPosterResult.parts.map((p, i) => `
-                                    <div class="flex items-start gap-3">
-                                        <span class="font-ssf text-orange-600 text-3xl leading-none">${i + 1}</span>
-                                        <div>
-                                            <div class="font-black text-slate-900 text-lg leading-tight uppercase">${p.name}</div>
-                                            <div class="text-[9px] font-bold text-orange-500 uppercase tracking-widest">${p.sector} SECTOR</div>
-                                        </div>
-                                    </div>
-                                `).join('')}
+<div class="flex items-center gap-4 mb-6">
+
+    <div class="w-10 h-10 rounded-full bg-orange-600
+                text-white font-bold flex items-center justify-center
+                text-lg">
+        ${i+1}
+    </div>
+
+    <div>
+        <div class="font-semibold text-[#00153d]
+                    text-[20px] uppercase leading-tight">
+            ${p.name}
+        </div>
+
+        <div class="text-orange-500
+                    text-[11px]
+                    font-medium
+                    tracking-wider uppercase">
+            ${p.sector} SECTOR
+        </div>
+    </div>
+
+</div>
+`).join('')}
                             </div>
                         </div>
                     </div>
