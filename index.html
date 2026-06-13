@@ -125,7 +125,7 @@
         }
         .poster-text-layer{
     position:absolute;
-    top:23%;
+    top:30%;
     left:7%;
     width:42%;
     display:flex;
@@ -704,6 +704,8 @@ const publishOrder = count;
     const sectors = document.querySelectorAll('.winner-sector');
 
     if (src === "Rslt01.png" || src === "rslt03.png") {
+        document.getElementById("poster-prog-name").style.color = "#ffffff";
+document.getElementById("poster-prog-cat").style.color = "#7dd3fc";
 
         // Template 1 and 3
         names.forEach(el=>{
@@ -718,6 +720,8 @@ const publishOrder = count;
 
     }
     else {
+        document.getElementById("poster-prog-name").style.color = "#00153d";
+document.getElementById("poster-prog-cat").style.color = "#f97316";
 
         // Template 2
         names.forEach(el=>{
