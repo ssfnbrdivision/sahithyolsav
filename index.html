@@ -679,13 +679,7 @@ margin-bottom:8px;">
 </p>
                             <div class="space-y-4" id="poster-winners-list">
                                 ${currentPosterResult.parts.map((p, i) => `
-<div class="flex items-center gap-4 mb-6">
-
-    <div class="w-7 h-7 rounded-full bg-orange-600
-                text-white font-bold flex items-center justify-center
-                text-base">
-        ${i+1}
-    </div>
+<div class="mb-6">
 
     <div>
      <div class="winner-name"
@@ -706,7 +700,7 @@ font-size:10px;
 font-weight:500;
 letter-spacing:1px;
 text-transform:uppercase;">
-    ${p.sector} SECTOR
+    ${p.sector}
 </div>
     </div>
 
