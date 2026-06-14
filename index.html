@@ -647,6 +647,28 @@ const { count } = await supabaseClient
 
 const publishOrder = count;
             currentPosterResult = { prog, parts: parts.slice(0, 3) }; 
+            let winners = parts.slice(0, 3);
+
+let rank = 1;
+let previousScore = null;
+
+winners = winners.map((p, index) => {
+    if (index === 0) {
+        previousScore = p.score;
+    } else {
+        if (p.score !== previousScore) {
+            rank = index + 1;
+            previousScore = p.score;
+        }
+    }
+
+    return {
+        ...p,
+        position: rank
+    };
+});
+
+currentPosterResult = { prog, parts: winners };
             
             const content = document.getElementById('admin-modal-content');
             content.innerHTML = `
@@ -678,7 +700,7 @@ margin-bottom:8px;">
    ${prog.category}
 </p>
                             <div class="space-y-4" id="poster-winners-list">
-                                ${currentPosterResult.parts.map((p, i) => `
+                               ${currentPosterResult.parts.map((p, i) => `
 <div class="mb-6">
 
     <div>
@@ -690,7 +712,7 @@ font-weight:600;
 line-height:1.1;
 text-transform:uppercase;
 color:white;">
-    ${p.name}
+    ${p.position}. ${p.name}
 </div>
 
 <div class="winner-sector"
