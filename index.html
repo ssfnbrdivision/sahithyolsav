@@ -114,9 +114,8 @@
 
         /* Poster Overlay Styles */
         .poster-preview {
-            width: 100%;
-            max-width: 400px;
-            aspect-ratio: 4/5;
+            width: 400%;
+           height: 500px;
             position: relative;
             background-color: white;
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
@@ -125,15 +124,37 @@
         }
         .poster-text-layer{
     position:absolute;
-    top:30%;
-    left:7%;
-    width:42%;
+    top:150px;
+    left:28px;
+    width:170px%;
     display:flex;
     flex-direction:column;
     justify-content:flex-start;
     pointer-events:none;
 }
+#poster-container{
+    transform: scale(1);
+}
 
+@media (max-width:768px){
+    #poster-container{
+        width:400px !important;
+        height:500px !important;
+        transform:none !important;
+    }
+
+    .winner-name{
+        font-size:14px !important;
+    }
+
+    .winner-sector{
+        font-size:10px !important;
+    }
+
+    #poster-prog-name{
+        font-size:18px !important;
+    }
+}
         /* Mobile Admin Sidebar Toggle */
         #admin-sidebar.mobile-open {
             transform: translateX(0);
@@ -639,8 +660,14 @@ const publishOrder = count;
     </span>
 </div>
 
-<h3 class="font-ssf text-orange-700 text-lg leading-none mb-2 uppercase"
-    id="poster-prog-name">
+<h3 id="poster-prog-name"
+style="
+font-size:18px;
+line-height:1;
+font-weight:bold;
+text-transform:uppercase;
+color:#fff;
+margin-bottom:8px;">
     ${prog.name}
 </h3>
 
@@ -659,18 +686,22 @@ const publishOrder = count;
     </div>
 
     <div>
-       <div class="winner-name
-            font-semibold
-            text-[14px]
-            uppercase
-            leading-tight">
+      <div class="winner-name"
+style="
+font-size:14px;
+font-weight:600;
+line-height:1.1;
+text-transform:uppercase;
+color:white;">
     ${p.name}
 </div>
 
-<div class="winner-sector
-            text-[10px]
-            font-medium
-            tracking-wider uppercase">
+<div class="winner-sector"
+style="
+font-size:10px;
+font-weight:500;
+letter-spacing:1px;
+text-transform:uppercase;">
     ${p.sector} SECTOR
 </div>
     </div>
